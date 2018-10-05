@@ -268,7 +268,35 @@ namespace PetaPoco.Tests.Integration.Databases.MSSQL
             });
         }
 
-        [ExplicitColumns]
+	    /// <summary>
+	    /// This test validates that we're still able to get results from queries that rely on
+	    /// Guid parameters (People.Id) after modifying SqlServerDatabaseProvider to ovveride HasNativeGuidSupport
+	    /// </summary>
+	    [Fact]
+	    public void Query_ForPocoGivenSqlString_GivenSqlContainingGuid_ShouldReturnValidPoco()
+	    {
+		    var sallyDob = new DateTime(1991, 10, 5);
+		    var sallyPersonId = AddPerson("Sally", 27, sallyDob);
+
+		    // We won't be retrieving this result, but if we dont have at least two records in the table
+			// then we dont't know if the Id parameter was actually applied to the query
+			AddPerson("Peta", 32, null); 
+
+		    var sql = Sql.Builder;
+		    sql.Select("*")
+			    .From("dbo.[People]")
+			    .Where("[Id] = @0", sallyPersonId);
+
+		    var results = DB.Query<Person>(sql).ToList();
+		    results.Count.ShouldBe(1);
+		    var person = results.SingleOrDefault();
+		    person.ShouldNotBe(null);
+		    person.Id.ShouldBe(sallyPersonId);
+		    person.Age.ShouldBe(27);
+		    person.Dob.ShouldBe(sallyDob);
+	    }
+
+		[ExplicitColumns]
         [TableName("BugInvestigation_64O6LT8U")]
         public class PocoOverlapPoco1
         {

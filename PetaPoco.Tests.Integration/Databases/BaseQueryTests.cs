@@ -348,36 +348,45 @@ namespace PetaPoco.Tests.Integration.Databases
             results.ForEach(po => po.ShouldStartWith("PO"));
         }
 
-        protected void AddPeople(int petasToAdd, int sallysToAdd)
-        {
-            var c = petasToAdd > sallysToAdd ? petasToAdd : sallysToAdd;
-            for (var i = 0; i < c; i++)
-            {
-                if (petasToAdd > i)
-                {
-                    DB.Insert(new Person
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Peta" + i,
-                        Age = 18 + i,
-                        Dob = new DateTime(1980 - (18 + 1), 1, 1, 1, 1, 1, DateTimeKind.Utc),
-                    });
-                }
+		protected void AddPeople(int petasToAdd, int sallysToAdd)
+	    {
+		    var c = petasToAdd > sallysToAdd ? petasToAdd : sallysToAdd;
+		    for (var i = 0; i < c; i++)
+		    {
+			    if (petasToAdd > i)
+			    {
+				    AddPerson(
+					    "Peta" + i,
+					    18 + i,
+					    new DateTime(1980 - (18 + 1), 1, 1, 1, 1, 1, DateTimeKind.Utc));
+			    }
 
-                if (sallysToAdd > i)
-                {
-                    DB.Insert(new Person
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Sally" + i,
-                        Age = 18 + i,
-                        Dob = new DateTime(1980 - (18 + 1), 1, 1, 1, 1, 1, DateTimeKind.Utc),
-                    });
-                }
-            }
-        }
+			    if (sallysToAdd > i)
+			    {
+				    AddPerson(
+					    "Sally" + i,
+					    18 + i,
+					    new DateTime(1980 - (18 + 1), 1, 1, 1, 1, 1, DateTimeKind.Utc));
+			    }
+		    }
+	    }
 
-        protected void AddOrders(int ordersToAdd)
+	    protected Guid AddPerson(string name, long age, DateTime? dob)
+	    {
+		    var id = Guid.NewGuid();
+
+		    DB.Insert(new Person
+		    {
+			    Id = id,
+			    Name = name,
+			    Age = age,
+			    Dob = dob,
+		    });
+
+		    return id;
+	    }
+
+		protected void AddOrders(int ordersToAdd)
         {
             var orderStatuses = Enum.GetValues(typeof(OrderStatus)).Cast<int>().ToArray();
             var people = new List<Person>(4);

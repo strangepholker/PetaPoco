@@ -56,5 +56,12 @@ namespace PetaPoco.Providers
         {
             return String.Format(" OUTPUT INSERTED.[{0}]", primaryKeyName);
         }
-    }
+
+		/// <summary>
+		/// MS Sql Server supports Guids as SqlDbType.UniqueIdentifier.
+		/// Using nvarchar(40) instead of uniqueidentifier can result
+		/// in index scans rather than index seeks
+		/// </summary>
+	    public override bool HasNativeGuidSupport => true;
+	}
 }
